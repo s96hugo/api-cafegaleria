@@ -1,0 +1,7 @@
+[{    "id": 1,    "numbre": "cafe",    "precio": 1.0, "Id_categoria": 1},
+   {    "id": 2,    "numbre": "cerveza",    "precio": 1.50, "Id_categoria": 1},
+   {    "id": 3,    "numbre": "cafe bombon",    "precio": 3.5, "Id_categoria": 1},
+   {    "id": 4,    "numbre": "tosta mojama",    "precio": 2.5, "Id_categoria": 2},
+   {    "id": 5,    "numbre": "arroz",    "precio": 7.0, "Id_categoria": 3},
+   {    "id": 6,    "numbre": "tiramisu",    "precio": 1.25, "Id_categoria": 5},
+   {    "id": 7,    "numbre": "tostada",    "precio": 1.0, "Id_categoria": 4}]

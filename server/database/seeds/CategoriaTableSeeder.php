@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Categoria;
+use App\Category;
 
 class CategoriaTableSeeder extends Seeder
 {
@@ -12,10 +12,10 @@ class CategoriaTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('categorias')->delete();
+        DB::table('categories')->delete();
         $json = File::get("database/data-sample/categoria.json");
         $data = json_decode($json);
         foreach ($data as $obj) {        
-            Categoria::create(array('id' => $obj->id, 'categoria' => $obj->categoria));}  
+            Category::create(array('id' => $obj->id, 'category' => $obj->categoria));}  
     }
 }

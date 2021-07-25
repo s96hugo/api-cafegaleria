@@ -13,6 +13,8 @@ class Ticket extends Model
         'table_id'
     ];
 
+    public $timestamps = false;
+
     public function table(){
         return $this->belongsTo('App\Table');
     }

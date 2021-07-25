@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Producto;
+use App\Product;
 
 class ProductoTableSeeder extends Seeder
 {
@@ -12,11 +12,11 @@ class ProductoTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('productos')->delete();
+        DB::table('products')->delete();
         $json = File::get("database/data-sample/producto.json");
         $data = json_decode($json);
         foreach ($data as $obj) {        
-            Producto::create(array('id' => $obj->id, 'nombre' => $obj->numbre, 'precio' => $obj->precio, 'Id_categoria' => $obj->Id_categoria ));}  
+            Product::create(array('id' => $obj->id, 'name' => $obj->numbre, 'price' => $obj->precio, 'category_id' => $obj->Id_categoria ));}  
 
     }
 }

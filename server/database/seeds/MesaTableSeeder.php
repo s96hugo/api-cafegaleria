@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Mesa;
+use App\Table;
 
 class MesaTableSeeder extends Seeder
 {
@@ -12,10 +12,10 @@ class MesaTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('mesas')->delete();
+        DB::table('tables')->delete();
         $json = File::get("database/data-sample/mesa.json");
         $data = json_decode($json);
         foreach ($data as $obj) {        
-            Mesa::create(array('id' => $obj->id, 'numero' => $obj->numero, 'descripcion' => $obj->descripcion));} 
+            Table::create(array('id' => $obj->id, 'number' => $obj->numero, 'description' => $obj->descripcion));} 
     }
 }

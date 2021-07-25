@@ -1,5 +1,0 @@
-[{    "id": 1,    "cantidad": 2, "fecha": "2021-07-20 10:56:30",   "observacion": "uno sin azucar", "Id_producto": 1, "Id_factura": 1},
-    {    "id": 2,    "cantidad": 1,  "fecha": "2021-07-20 10:56:30",  "observacion": "", "Id_producto": 3, "Id_factura": 1},
-    {    "id": 3,    "cantidad": 1,  "fecha": "2021-07-20 10:56:30", "observacion": "cafe", "Id_producto": 2, "Id_factura": 2},
-    {    "id": 4,    "cantidad": 1,  "fecha": "2021-07-20 10:56:30", "observacion": "cafe", "Id_producto": 4, "Id_factura": 3},
-    {    "id": 5,    "cantidad": 1,  "fecha": "2021-07-20 10:56:30", "observacion": "cafe", "Id_producto": 3, "Id_factura": 4}]

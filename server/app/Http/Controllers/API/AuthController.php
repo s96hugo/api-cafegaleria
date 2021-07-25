@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\User;
+use Exception;
 
 class AuthController extends Controller
 {
@@ -28,8 +31,7 @@ class AuthController extends Controller
     public function register(Request $request){
 
         $encryptedPass = Hash::make($request->password);
-        $user = new User;
-        
+        $user = new User();
 
         try{
             $user->name = $request->name;

@@ -17,38 +17,42 @@ use Illuminate\Support\Facades\Route;
 //Auth
 Route::post('login', 'API\AuthController@login');
 Route::post('register', 'API\AuthController@register');
-Route::post('logout', 'API\AuthController@logout');
+Route::get('logout', 'API\AuthController@logout');
 
-//Refactorizar
-//Product CRUD Routes
-Route::post('/products', 'API\ProductController@store');
-Route::get('/products', 'API\ProductController@index');
-Route::get('/products/{id}', 'API\ProductController@show');
-Route::put('/products/{id}', 'API\ProductController@update');
-Route::post('/products/{id}', 'API\ProductController@destroy');
+//Product functions Routes
+Route::post('products/create', 'API\ProductController@create');
+Route::get('products', 'API\ProductController@getAll');
+Route::get('products/{id}/get', 'API\ProductController@get');
+Route::post('products/{id}/update', 'API\ProductController@update');
+Route::post('products/{id}/delete', 'API\ProductController@delete');
+Route::get('products/category/{id}', 'API\ProductController@getProductByCategoryId');
 
 //Category CRUD Routes
-Route::post('/categories', 'API\CategoryController@store');
-Route::get('/categories', 'API\CategoryController@index');
-Route::get('/categories/{id}', 'API\CategoryController@show');
-Route::put('/categories/{id}', 'API\CategoryController@update');
-Route::post('/categories/{id}', 'API\CategoryController@destroy');
+Route::post('categories/create', 'API\CategoryController@create');
+Route::get('categories', 'API\CategoryController@getAll');
+Route::get('categories/{id}/get', 'API\CategoryController@get');
+Route::post('categories/{id}/update', 'API\CategoryController@update');
+Route::post('categories/{id}/delete', 'API\CategoryController@delete');
 
-//Bien, sin middleware AUTH ni PERMISOS
-//Table CRUD
+//Tables CRUD Routes
 Route::post('tables/create', 'API\TableController@create');
-Route::get('tables/get/all', 'API\TableController@getAll');
-Route::get('tables/get/{id}', 'API\TableController@get');
-Route::post('tables/update/{id}', 'API\TableController@update');
-Route::post('tables/delete/{id}', 'API\TableController@delete');
+Route::get('tables', 'API\TableController@getAll');
+Route::get('tables/{id}/get', 'API\TableController@get');
+Route::post('tables/{id}/update', 'API\TableController@update');
+Route::post('tables/{id}/delete', 'API\TableController@delete');
 
 //Ticket functions
 Route::post('tickets/create', 'API\TicketController@create');
-Route::post('tickets/delete/{id}', 'API\TicketController@delete');
-Route::post('tickets/cuenta/{id}', 'API\TicketController@cuenta');
-Route::get('tickets/get/all', 'API\TicketController@getAll');
-Route::get('tickets/get/{id}', 'API\TicketController@get');
-Route::post('tickets/change/table/{id}', 'API\TicketController@changeTable');
+Route::post('tickets/{id}/delete', 'API\TicketController@delete');
+Route::post('tickets/{id}/cuenta', 'API\TicketController@cuenta');
+Route::get('tickets', 'API\TicketController@getAll');
+Route::get('tickets/{id}/get/', 'API\TicketController@get');
+Route::post('tickets/{id}/changeTable/', 'API\TicketController@changeTable');
 
 //Order function
 Route::post('orders/create', 'API\OrderController@create');
+Route::get('orders', 'API\OrderController@getAll');
+Route::post('orders/{id}/delete', 'API\OrderController@delete');
+
+//ProductOrder function
+Route::post('productOrders/create', 'API\ProductOrderController@create');

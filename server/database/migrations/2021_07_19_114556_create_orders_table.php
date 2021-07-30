@@ -17,7 +17,7 @@ class CreateOrdersTable extends Migration
             $table->id();
             //$table->dateTime('date', $precision = 0);
             $table->unsignedBigInteger('ticket_id');
-            $table->foreign('ticket_id')->references('id')->on('tickets');
+            $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();

@@ -14,10 +14,17 @@ class OrderController extends Controller
         $newOrder->user_id = $req->user_id;
         $newOrder->save();
 
-        return response()->json([
-            'success' => true,
+        return response()->json(
             $newOrder
-        ]);
+        );
+    }
+
+    public function getAll(){
+        $orders = Order::all();
+        return response()->json($orders);
+    }
+    public function delete($id){
+        Order::findOrFail($id)->delete();
     }
 
 }

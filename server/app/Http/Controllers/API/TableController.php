@@ -14,47 +14,36 @@ class TableController extends Controller
         $newTable->description = $req->description;
         $newTable->save();
 
-        return response()->json([
-            'success' => true,
-            'messagge' => 'table added',
+        return response()->json(
             $newTable
-        ]);
+        );
     }
 
     public function getAll(){
         $listTables = Table::all();
-        return response()->json([
-            'success' => true,
+        return response()->json(
             $listTables
-        ]);
+        );
     }
 
-    public function get(Request $req){
-        $table = Table::findOrFail($req->id);
-        return response()->json([
-            'success'=> true,
-            'message'=> 'table update',
+    public function get($id){
+        $table = Table::findOrFail($id);
+        return response()->json(
             $table
-        ]);
+        );
     }
 
-    public function update(Request $req){
-        $table = Table::find($req->id);
+    public function update($id, Request $req){
+        $table = Table::findOrFail($id);
         $table->number = $req->number;
         $table->description = $req->description;
         $table->update();
-        return response()->json([
-            'success'=> true,
-            'message'=> 'table update',
+        return response()->json(
             $table
-        ]);
+        );
     }
 
-    public function delete(Request $req){
-        Table::findOrFail($req->id)->delete();
-        return response()->json([
-            'success' => true,
-            'message' => 'table deleted'
-        ]);
+    public function delete($id){
+        Table::findOrFail($id)->delete();
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\User;
 use Exception;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -21,11 +22,7 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'token' => $token,
-            'user' => Auth::user()
-        ]);
+        return response()->json( $token);
     }
 
     public function register(Request $request){
@@ -48,6 +45,21 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => $e
             ]);
+        }
+    }
+
+    public function logout(Request $req){
+        try{
+            JWTAuth::invalidate(JWTAuth::parseToken($req->token));
+
+
+        }
+        catch(Exception $e){
+            return response()->json([
+                'success' => false,
+                $e
+            ]);
+
         }
     }
 

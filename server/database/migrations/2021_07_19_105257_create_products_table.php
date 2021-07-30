@@ -17,7 +17,7 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('price', $precision = 8, $scale = 2);
-            $table->string('photo')->default('');
+            $table->string('photo')->nullable();
             $table->unsignedBigInteger('category_id');
             $table->foreign('category_id')->references('id')->on('categories');
         });

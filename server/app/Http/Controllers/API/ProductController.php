@@ -8,65 +8,42 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-
-        $listProducts = Product::all();//where('Id_category',  $id)->get();
-        return $listProducts;
+    public function create(Request $req){
+        $newProd = new Product();
+        $newProd->name = $req->name;
+        $newProd->price = $req->price;
+        $newProd->photo = $req->photo;
+        $newProd->category_id = $req->category_id;
+        $newProd->save();
+        return response()->json($newProd);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $createProduct = Product::create($request->all());
-        return  $createProduct;
+    public function getAll(){
+        $products = Product::all();
+        return response()->json($products);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
+    public function get($id){
         $product = Product::findOrFail($id);
-        return $product;
+        return response()->json($product);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $updateProductById = Product::findOrFail($id);
-        $updateProductById->update($request->all());
-        return $updateProductById;
+    public function update($id, Request $req){
+        $product = Product::findOrFail($id);
+        $product->name = $req->name;
+        $product->price = $req->price;
+        $product->photo = $req->photo;
+        $product->category_id = $req->category_id;
+        $product->update();
+        return response()->json($product);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        Product::find($id)->delete();
-        return response()->json([], 204);
+    public function delete($id){
+        $product = Product::findOrFail($id)->delete();
+    }
+
+    public function getProductByCategoryId($id){
+        $products = Product::all()->where('category_id', "=", $id);
+        return response()->json($products);
     }
 }

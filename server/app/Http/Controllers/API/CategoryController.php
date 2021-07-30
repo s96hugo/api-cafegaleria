@@ -8,64 +8,31 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $listCategories = Category::all();
-        return $listCategories;
+    public function create(Request $req){
+        $newCategory = new Category();
+        $newCategory->category = $req->category;
+        $newCategory->save();
+        return response()->json($newCategory);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $createCategory = Category::create($request->all());
-        return  $createCategory;
+    public function getAll(){
+        $categories = Category::all();
+        return response()->json($categories);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
+    public function get($id){
         $category = Category::findOrFail($id);
-        return $category;
+        return response()->json($category);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $updateCategoryById = Category::findOrFail($id);
-        $updateCategoryById->update($request->all());
-        return $updateCategoryById;
+    public function update($id, Request $req){
+        $category = Category::findOrFail($id);
+        $category->category = $req->category;
+        $category->update();
+        return response()->json($category);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        Category::find($id)->delete();
-        return response()->json([], 204);
+    public function delete($id){
+        Category::findOrFail($id)->delete();
     }
 }

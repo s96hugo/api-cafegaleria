@@ -17,8 +17,12 @@ use Illuminate\Support\Facades\Route;
 //Auth
 Route::post('login', 'API\AuthController@login');
 Route::post('register', 'API\AuthController@register');
-Route::get('logout', 'API\AuthController@logout');
+Route::get('logout', 'API\AuthController@logout')->middleware('jwtAuth');
+Route::get('users', 'API\AuthController@getUsers')->middleware('jwtAuth');
 
+
+Route::middleware(['jwtAuth'])->group(function () {
+    
 //Product functions Routes
 Route::post('products/create', 'API\ProductController@create');
 Route::get('products', 'API\ProductController@getAll');
@@ -26,6 +30,7 @@ Route::get('products/{id}/get', 'API\ProductController@get');
 Route::post('products/{id}/update', 'API\ProductController@update');
 Route::post('products/{id}/delete', 'API\ProductController@delete');
 Route::get('products/category/{id}', 'API\ProductController@getProductByCategoryId');
+Route::get('products/popular', 'API\ProductController@mostPopular');
 
 //Category CRUD Routes
 Route::post('categories/create', 'API\CategoryController@create');
@@ -56,3 +61,6 @@ Route::post('orders/{id}/delete', 'API\OrderController@delete');
 
 //ProductOrder function
 Route::post('productOrders/create', 'API\ProductOrderController@create');
+
+
+});

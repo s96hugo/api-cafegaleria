@@ -19,10 +19,15 @@ class AuthController extends Controller
         if(!$token=auth()->attempt($creds)){
             return response()->json([
                 'success' => false
+                
             ]);
         }
 
-        return response()->json( $token);
+        return response()->json([
+            'success' => true,
+            'token' => $token,
+            'user' => Auth::user()
+        ]);
     }
 
     public function register(Request $request){
@@ -61,6 +66,11 @@ class AuthController extends Controller
             ]);
 
         }
+    }
+
+    public function getUsers(){
+        $users = User::all();
+        return response()->json($users);
     }
 
 }

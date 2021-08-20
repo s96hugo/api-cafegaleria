@@ -5,6 +5,7 @@ use App\Product;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -45,5 +46,21 @@ class ProductController extends Controller
     public function getProductByCategoryId($id){
         $products = Product::all()->where('category_id', "=", $id);
         return response()->json($products);
+    }
+
+    public function mostPopular(){
+        $mp = Product::select(
+            'products.id', 
+            'products.name',
+            DB::raw("(sum(product_orders.units)) as total")
+        )    
+        ->join('product_orders', 'product_orders.product_id', '=', 'products.id')
+        ->orderBy('total', 'DESC')
+        ->groupBy('products.id')
+        ->take(3)
+        ->get();
+
+
+        return response()->json($mp);
     }
 }

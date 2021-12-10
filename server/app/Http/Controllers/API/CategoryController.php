@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Category;
 
 use App\Http\Controllers\Controller;
+use Dotenv\Result\Success;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -12,12 +13,17 @@ class CategoryController extends Controller
         $newCategory = new Category();
         $newCategory->category = $req->category;
         $newCategory->save();
-        return response()->json($newCategory);
+        return response()->json([
+            'success' => true
+        ]);
     }
 
     public function getAll(){
         $categories = Category::all();
-        return response()->json($categories);
+        return response()->json([
+            'success' => true,
+            'categories' => $categories
+        ]);
     }
 
     public function get($id){
@@ -29,10 +35,15 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->category = $req->category;
         $category->update();
-        return response()->json($category);
+        return response()->json([
+            'success' => true
+        ]);
     }
 
     public function delete($id){
         Category::findOrFail($id)->delete();
+        return response()->json([
+            'success' => true
+        ]);
     }
 }

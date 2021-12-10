@@ -17,7 +17,8 @@ class CreateTicketsTable extends Migration
             $table->id();
             $table->integer('number')->nullable();
             $table->dateTime('date', $precision = 0)->nullable();
-            $table->decimal('total', $precision = 8, $scale = 2)->nullable();
+            $table->decimal('total', $precision = 10, $scale = 2)->nullable();
+            $table->string('payment')->nullable();
             $table->unsignedBigInteger('table_id');
             $table->foreign('table_id')->references('id')->on('tables');
             

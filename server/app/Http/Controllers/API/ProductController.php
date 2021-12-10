@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Product;
 
 use App\Http\Controllers\Controller;
+use Dotenv\Result\Success;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,15 +15,14 @@ class ProductController extends Controller
         $newProd->name = $req->name;
         $newProd->price = $req->price;
         $newProd->photo = $req->photo;
+        $newProd->visible = true;
         $newProd->category_id = $req->category_id;
         $newProd->save();
-        return response()->json($newProd);
+        return response()->json([
+            'success' => true
+        ]);
     }
 
-    public function getAll(){
-        $products = Product::all();
-        return response()->json($products);
-    }
 
     public function get($id){
         $product = Product::findOrFail($id);
@@ -36,15 +36,37 @@ class ProductController extends Controller
         $product->photo = $req->photo;
         $product->category_id = $req->category_id;
         $product->update();
-        return response()->json($product);
+        return response()->json([
+            'success' => true
+        ]);
     }
 
     public function delete($id){
         $product = Product::findOrFail($id)->delete();
     }
 
+    public function invisible($id){
+        $product = Product::findOrFail($id);
+        $product->visible = false;
+        $product->update();
+        return response()->json([
+            'success' => true
+        ]);
+
+    }
+
+    public function visible($id){
+        $product = Product::findOrFail($id);
+        $product->visible = true;
+        $product->update();
+        return response()->json([
+            'success' => true
+        ]);
+
+    }
+
     public function getProductByCategoryId($id){
-        $products = Product::all()->where('category_id', "=", $id);
+        $products = Product::all()->where('category_id', "=", $id)->where('visible', "=", true);
         return response()->json($products);
     }
 
@@ -52,15 +74,60 @@ class ProductController extends Controller
         $mp = Product::select(
             'products.id', 
             'products.name',
+            'products.price',
+            'categories.category',
             DB::raw("(sum(product_orders.units)) as total")
         )    
         ->join('product_orders', 'product_orders.product_id', '=', 'products.id')
+        ->join('categories', 'categories.id', '=', 'products.category_id')
+        ->where('products.visible', "=", true)
         ->orderBy('total', 'DESC')
         ->groupBy('products.id')
-        ->take(3)
+        ->take(12)
         ->get();
 
 
-        return response()->json($mp);
+        return response()->json([
+            'success' => true,
+            'mostPopular' => $mp
+        ]);
     }
+
+    public function productCategory(){
+        $mp = Product::select(
+            'products.id', 
+            'products.name',
+            'products.price',
+            'products.category_id',
+            'categories.category'
+        )    
+        ->join('categories', 'categories.id', '=', 'products.category_id')
+        ->where('products.visible', "=", true)
+        ->orderBy('products.category_id', 'ASC')
+        ->get();
+
+
+        return response()->json([
+            'success' => true,
+            'products'=> $mp]);
+    }
+
+    public function checkCategoryHasProduct($id){
+        $products = Product::where('products.category_id', '=', $id)->get();
+        $productsC = $products->count();
+        if($productsC == 0){
+            return response([
+                'success' => true,
+                'deleteable' => true
+            ]);
+        } else {
+            return response([
+                'success' => true,
+                'deleteable' => false
+            ]);
+        } 
+
+    }
+
+
 }

@@ -10,6 +10,7 @@ class Ticket extends Model
         'number',
         'date',
         'total',
+        'payment',
         'table_id'
     ];
 

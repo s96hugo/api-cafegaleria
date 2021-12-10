@@ -14,9 +14,10 @@ class OrderController extends Controller
         $newOrder->user_id = $req->user_id;
         $newOrder->save();
 
-        return response()->json(
-            $newOrder
-        );
+        return response()->json([
+            'success' => true,
+            'order' => $newOrder
+        ]);
     }
 
     public function getAll(){

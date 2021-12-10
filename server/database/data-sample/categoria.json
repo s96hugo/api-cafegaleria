@@ -1,7 +1,25 @@
-[{    "id": 1,    "categoria": "bebidas"},
-{    "id": 2,    "categoria": "tapas frias"},
-{    "id": 3,    "categoria": "platos"},
-{    "id": 4,    "categoria": "desayunos"},
-{    "id": 5,    "categoria": "postres"}]
+[{    "id": 1,    "categoria": "Cafés"},
+{    "id": 2,    "categoria": "Tés"},
+{    "id": 3,    "categoria": "Zumos"},
+{    "id": 4,    "categoria": "Batidos"},
+{    "id": 5,    "categoria": "Tostadas"},
+{    "id": 6,    "categoria": "Tartas"},
+
+{    "id": 7,    "categoria": "Cervezas"},
+{    "id": 8,    "categoria": "Vinos"},
+{    "id": 9,    "categoria": "Refrescos"},
+{    "id": 10,    "categoria": "Tapas"},
+{    "id": 11,    "categoria": "Raciones"},
+{    "id": 12,    "categoria": "Arroces"},
+{    "id": 13,    "categoria": "Bocadillos"},
+{    "id": 14,    "categoria": "Postres"},
+{    "id": 15,    "categoria": "Ensaladas"},
+
+{    "id": 16,    "categoria": "Ginebras"},
+{    "id": 17,    "categoria": "Ron"},
+{    "id": 18,    "categoria": "Whisky"},
+{    "id": 19,    "categoria": "Cocktails"},
+{    "id": 20,    "categoria": "Licores"},
+{    "id": 21,    "categoria": "Agua"}]
 
         

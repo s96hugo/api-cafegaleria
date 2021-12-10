@@ -36,7 +36,7 @@ class JWTMiddleware
 
         }
 
-        return response()->json(['success' => false, 'status' => $message]);
+        return response()->json(['success' => false ,'token' => false, 'status' => $message]);
      
 
     }

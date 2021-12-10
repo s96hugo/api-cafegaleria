@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\User;
+use Dotenv\Result\Success;
 use Exception;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -42,7 +43,9 @@ class AuthController extends Controller
             
             $user->save();
             
-            return $this->login($request);
+            return response()->json([
+                'success' => true
+            ]);
             
         }
         catch(Exception $e){
@@ -56,6 +59,9 @@ class AuthController extends Controller
     public function logout(Request $req){
         try{
             JWTAuth::invalidate(JWTAuth::parseToken($req->token));
+            return response()->json([
+                'success' => true
+            ]);
 
 
         }
@@ -70,7 +76,29 @@ class AuthController extends Controller
 
     public function getUsers(){
         $users = User::all();
-        return response()->json($users);
+        return response()->json([
+            'success' => true,
+            'users' => $users
+        ]);
+    }
+
+    public function editUser($id, Request $req){
+        $user = User::findOrFail($id);
+        $encryptedPass = Hash::make($req->password);
+        $user->email = $req->email;
+        $user->password = $encryptedPass;
+        $user->name = $req->name;
+        $user->update();
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
+    public function getCurrent($id){
+        $user = User::findOrFail($id);
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
 }

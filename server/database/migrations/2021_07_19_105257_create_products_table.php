@@ -18,6 +18,7 @@ class CreateProductsTable extends Migration
             $table->string('name');
             $table->decimal('price', $precision = 8, $scale = 2);
             $table->string('photo')->nullable();
+            $table->boolean('visible');
             $table->unsignedBigInteger('category_id');
             $table->foreign('category_id')->references('id')->on('categories');
         });

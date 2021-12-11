@@ -98,16 +98,51 @@ class TicketController extends Controller
         ]);
     }
 
-    public function changeTable(Request $req){
-        $tick = Ticket::findOrFail($req->id);
+    //Función para cambiar de mesa un ticket. SI NO hay registro success false, token true.
+    public function changeTable($id, Request $req){
+        //Filtro1 -> Existe ticket activo en la mesa de origen
+        $ticketf1 = Ticket::select('id')->where('date', '=', null)->where('table_id', '=', $id)->get();
+        $ticket_id = 0;
+        foreach($ticketf1 as $t){
+            $ticket_id += $t->id;
+        }
+
+        if($ticket_id == 0){
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+        }
+
+        //Filtro2 -> Mesa de destino vacía
+        $ticketf2 = Ticket::select('id')->where('date', '=', null)->where('table_id', '=', $req->table_id)->get();
+        $ticket_id2 = 0;
+        foreach($ticketf2 as $t2){
+            $ticket_id2 += $t2->id;
+        }
+
+        if($ticket_id2 != 0){
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+        }
+
+
+
+        $tick = Ticket::findOrFail($ticket_id);
         $tick->table_id = $req->table_id;
         $tick->update();
 
-        return response()->json(
-            $tick
-    );
+        $tickets = Ticket::where('date', '=', null)->get();
+
+        return response()->json([
+            'success' => true,
+            'tickets' => $tickets
+        ]);
     }
 
+    //Función que calcula el total por "producto * unidades" a la hora de hacer la cuenta.
     public function calcularTotal(int $id){
         $prices = Ticket::select('products.price', 'product_orders.units')
         ->join('orders', 'orders.ticket_id', '=', 'tickets.id')
@@ -123,17 +158,9 @@ class TicketController extends Controller
         $formattedNum = str_replace(',', '', $total);
 
         return $formattedNum;
-        /*
-
-        return number_format(
-            $formattedNum,
-            2
-        );
-        */
-        
-        
     }
 
+    //Método que devuelve todos los productos, precio y unidades que se han pedidio en un ticket
     public function calcularUnidadesProducto($id){
         $productsUnits = Ticket::select('products.name',
                                 'products.price', 
@@ -148,6 +175,7 @@ class TicketController extends Controller
         return $productsUnits;
     }
 
+    //Comprueba si existe un ticket activo en esa mesa, se utiliza a la hora de crear un ticket, para que no haya dos tickets en la misma mesa.
     public function checkCurrentTicketAtTable($id){
 
         $ticketAtTable = Ticket::select(DB::raw("(count('tickets.number')) as units"))
@@ -165,6 +193,7 @@ class TicketController extends Controller
         return $total;
     }
 
+    //LLama a "CalcularUnidadesProducto" al igual que el método que realiza la cuenta. Este se usa para acceder a los productos de un ticket ya cerrado.
     public function showBill($id){
         $productsUnits = $this->calcularUnidadesProducto($id);
         return response()->json([

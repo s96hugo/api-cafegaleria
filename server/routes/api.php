@@ -35,6 +35,7 @@ Route::post('products/{id}/visible', 'API\ProductController@visible');
 Route::get('products/category/{id}', 'API\ProductController@getProductByCategoryId');
 Route::get('products/popular', 'API\ProductController@mostPopular');
 Route::get('products', 'API\ProductController@productCategory');
+Route::get('productsDataSet', 'API\ProductController@productsDataSet');
 
 
 

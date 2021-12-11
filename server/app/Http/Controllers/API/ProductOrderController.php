@@ -64,9 +64,7 @@ class ProductOrderController extends Controller
         ->join('products', 'products.id', '=', 'product_orders.product_id')
         ->where('tickets.id', '=', $total)->get();
 
-        return response()->json([
-            $productOrderInfo
-        ]);
+        return $productOrderInfo;
 
     }
 }

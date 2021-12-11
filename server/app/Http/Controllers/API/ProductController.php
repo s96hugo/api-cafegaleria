@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 use App\Product;
+use App\Category;
 
 use App\Http\Controllers\Controller;
 use Dotenv\Result\Success;
@@ -126,6 +127,49 @@ class ProductController extends Controller
                 'deleteable' => false
             ]);
         } 
+
+    }
+
+    public function productsDataSet(){
+
+        //Most popular
+        $mp = Product::select(
+            'products.id', 
+            'products.name',
+            'products.price',
+            'categories.category',
+            DB::raw("(sum(product_orders.units)) as total")
+        )    
+        ->join('product_orders', 'product_orders.product_id', '=', 'products.id')
+        ->join('categories', 'categories.id', '=', 'products.category_id')
+        ->where('products.visible', "=", true)
+        ->orderBy('total', 'DESC')
+        ->groupBy('products.id')
+        ->take(12)
+        ->get();
+
+        //Products
+        $pc = Product::select(
+            'products.id', 
+            'products.name',
+            'products.price',
+            'products.category_id',
+            'categories.category'
+        )    
+        ->join('categories', 'categories.id', '=', 'products.category_id')
+        ->where('products.visible', "=", true)
+        ->orderBy('products.category_id', 'ASC')
+        ->get();
+
+        //Categories
+        $categories = Category::all();
+
+        return response()->json([
+            'success' => true,
+            'mostPopular' => $mp,
+            'products' => $pc,
+            'categories' => $categories
+        ]);
 
     }
 

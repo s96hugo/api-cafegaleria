@@ -5,20 +5,41 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\ProductOrder;
+use App\Order;
 
 class ProductOrderController extends Controller
 {
+    //Crea un order, que utiliza para crear el productOrder
     public function create(Request $req){
         $ord_id = 0;
         foreach($req->all() as $prod){
-            $newProd = new ProductOrder();
-            $newProd->units = $prod['units'];
-            $newProd->comment = $prod['comment'] ?? '';
-            $newProd->product_id = $prod['product_id'];
-            $newProd->order_id = $prod['order_id'];
-            $newProd->save();
+            //PRUEBA: fusion create order y productOrder
+            if($ord_id == 0){
+                $newOrder = new Order;
+                $newOrder->ticket_id = $prod['ticket_id'];
+                $newOrder->user_id = $prod['user_id'];
+                $newOrder->save();
+
+                $ord_id = $newOrder->id;
+
+                $newProd = new ProductOrder();
+                $newProd->units = $prod['units'];
+                $newProd->comment = $prod['comment'] ?? '';
+                $newProd->product_id = $prod['product_id'];
+                $newProd->order_id = $ord_id;
+                $newProd->save();
+
+            } else {
+                $newProd = new ProductOrder();
+                $newProd->units = $prod['units'];
+                $newProd->comment = $prod['comment'] ?? '';
+                $newProd->product_id = $prod['product_id'];
+                $newProd->order_id = $ord_id;//$prod['order_id'];
+                $newProd->save();
             
-            $ord_id = $prod['order_id'];
+                //$ord_id = $prod['order_id'];
+            }
+            
         }
 
         $productOrderInfo = $this->getAllProductsOrderTicket($ord_id);
@@ -41,6 +62,19 @@ class ProductOrderController extends Controller
         $prod->product_id = $req->product_id;
         $prod->update();
         return response()->json($prod);
+    }
+
+    public function ticketProductOrdersInfo($id){
+        $productOrderInfo = ProductOrder::select('product_orders.id', 'product_orders.units', 'product_orders.comment', 'products.name', 'product_orders.product_id', 'product_orders.order_id')
+        ->join('orders', 'orders.id', '=', 'product_orders.order_id')
+        ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
+        ->join('products', 'products.id', '=', 'product_orders.product_id')
+        ->where('tickets.id', '=', $id)->get();
+
+        return response()->json([
+            'success' => true,
+            'ticketOrderInfo' => $productOrderInfo
+        ]);
     }
 
     //Método que devuelve un json con todos los productos (y unidades) por cada order de ese ticket.

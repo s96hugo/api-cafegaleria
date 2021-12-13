@@ -90,7 +90,7 @@ class TicketController extends Controller
     }
 
     public function getClosedTickets(){
-        $tickets = Ticket::where('date', '!=', null)->orderBy('id', 'DESC')->get();
+        $tickets = Ticket::where('date', '!=', null)->orderBy('id', 'DESC')->take(100)->get();
         return response()->json([
             'success' => true,
             'tickets' => $tickets,

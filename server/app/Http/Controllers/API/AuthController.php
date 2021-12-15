@@ -43,7 +43,8 @@ class AuthController extends Controller
             $user->save();
             
             return response()->json([
-                'success' => true
+                'success' => true,
+                'user' => $user
             ]);
             
         }
@@ -81,16 +82,68 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * EditUser
+     * Método que edita un usuario.
+     * El usuario con id 1 es el administrador.
+     * Un usuario solo puede modificarse si es administrador o es él mismo     
+     */
     public function editUser($id, Request $req){
-        $user = User::findOrFail($id);
-        $encryptedPass = Hash::make($req->password);
-        $user->email = $req->email;
-        $user->password = $encryptedPass;
-        $user->name = $req->name;
-        $user->update();
-        return response()->json([
-            'success' => true
-        ]);
+        $userid = JWTAuth::toUser($req->token);
+        if($userid->id == $id || $userid->id == 1){
+            $user = User::findOrFail($id);
+            $encryptedPass = Hash::make($req->password);
+            $user->email = $req->email;
+            $user->password = $encryptedPass;
+            $user->name = $req->name;
+            $user->update();
+            return response()->json([
+                'success' => true,
+                'user' => $user
+            ]);
+
+        } else{
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+        }
+        
+    }
+
+    /**
+     * Borrar usuario
+     * Sólo el usuario administrador va a poder borrar un usuario siempre y cuando 
+     * nunca haya intervenido en la creación de un pedido.
+     */
+    public function deleteUser($id, Request $req){
+        $userid = JWTAuth::toUser($req->token);
+        $check = User::select(
+            'users.id'
+        )    
+        ->join('orders', 'users.id', '=', 'orders.user_id')
+        ->where('users.id', '=', $id)
+        ->take(1)
+        ->get();
+
+        $total = 0;
+        foreach($check as $registro){
+            $total += $registro->id;
+        }
+
+        if($userid->id == 1 && $total == 0){
+            $user = User::findOrFail($id);
+            User::findOrFail($id)->delete();
+            return response()->json([
+                'success' => true,
+                'user' => $user
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+        }
     }
 
     public function getCurrent($id){

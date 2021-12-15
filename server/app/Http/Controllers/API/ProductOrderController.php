@@ -71,10 +71,19 @@ class ProductOrderController extends Controller
         ->join('products', 'products.id', '=', 'product_orders.product_id')
         ->where('tickets.id', '=', $id)->get();
 
-        return response()->json([
-            'success' => true,
-            'ticketOrderInfo' => $productOrderInfo
-        ]);
+        if($productOrderInfo->count() == 0){
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+        } else {
+            return response()->json([
+                'success' => true,
+                'ticketOrderInfo' => $productOrderInfo
+            ]);
+        }
+
+        
     }
 
     //Método que devuelve un json con todos los productos (y unidades) por cada order de ese ticket.
@@ -86,9 +95,8 @@ class ProductOrderController extends Controller
         ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
         ->where('orders.id', '=', $id)->get();
 
-        $total = 0;
         foreach($ticket_id as $ticket){
-            $total = $ticket->id;
+            $ticket->id;
         }
 
         //Sacar toda la info de ese ticket
@@ -96,7 +104,7 @@ class ProductOrderController extends Controller
         ->join('orders', 'orders.id', '=', 'product_orders.order_id')
         ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
         ->join('products', 'products.id', '=', 'product_orders.product_id')
-        ->where('tickets.id', '=', $total)->get();
+        ->where('tickets.id', '=', $ticket->id)->get();
 
         return $productOrderInfo;
 

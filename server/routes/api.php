@@ -21,7 +21,7 @@ Route::get('logout', 'API\AuthController@logout')->middleware('jwtAuth');
 Route::get('users', 'API\AuthController@getUsers')->middleware('jwtAuth');
 Route::post('user/{id}/edit', 'API\AuthController@editUser')->middleware('jwtAuth');
 Route::get('user/{id}/get', 'API\AuthController@getCurrent')->middleware('jwtAuth');
-
+Route::post('user/{id}/delete', 'API\AuthController@deleteUser')->middleware('jwtAuth');
 
 Route::middleware(['jwtAuth'])->group(function () {
     

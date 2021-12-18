@@ -72,6 +72,9 @@ Route::post('orders/{id}/delete', 'API\OrderController@delete');
 
 //ProductOrder function
 Route::post('productOrders/create', 'API\ProductOrderController@create');
+Route::post('productOrders/crear', 'API\ProductOrderController@crear');
 Route::get('productOrders/{id}/info', 'API\ProductOrderController@ticketProductOrdersInfo');
+Route::post('productOrders/{id}/delete', 'API\ProductOrderController@deleteProductOrder');
+Route::post('productOrders/{id}/update', 'API\ProductOrderController@update');
 
 });

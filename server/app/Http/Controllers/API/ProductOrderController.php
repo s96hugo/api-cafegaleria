@@ -6,15 +6,35 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\ProductOrder;
 use App\Order;
+use App\Ticket;
 
 class ProductOrderController extends Controller
 {
-    //Crea un order, que utiliza para crear el productOrder
+    //
+    /**
+     * Create
+     * Función que para cada elemento (productOrder) instancia un nuevo ProductOrder en la BBDD.
+     * En la primera iteración crea un nuevo Order, ya que un productOrder tiene que tener un order asociado.
+     * Posteriormente devuelve toda la info de ese ticket, a traves del método 'getAllProductsOrderTicket'.
+     * Devuelve success false si el ticket ya se le realizó la cuenta (tiene fecha).
+     */
     public function create(Request $req){
+
+        $ticket_id = 0;                         //Condición. Buscamos ticket, si tiene fecha significa que el ticket está cerrado
+        foreach($req->all() as $prod){          //No se permite hacer pedidos a un ticket con la cuenta realizada.
+            $ticket_id = $prod['ticket_id'];
+        }
+        $ticketUpda = Ticket::findOrFail($ticket_id); 
+        if ($ticketUpda->date != null) {
+            return response()->json([
+                ['success' => false],
+                ['token' => true]
+            ]);
+        } 
+
         $ord_id = 0;
         foreach($req->all() as $prod){
-            //PRUEBA: fusion create order y productOrder
-            if($ord_id == 0){
+            if($ord_id == 0){ //primera iteración, antes de crear el productOrder, se crea el Order que viene en la request
                 $newOrder = new Order;
                 $newOrder->ticket_id = $prod['ticket_id'];
                 $newOrder->user_id = $prod['user_id'];
@@ -29,17 +49,14 @@ class ProductOrderController extends Controller
                 $newProd->order_id = $ord_id;
                 $newProd->save();
 
-            } else {
+            } else {//Demas iteraciones, se instacian los productsOrders
                 $newProd = new ProductOrder();
                 $newProd->units = $prod['units'];
                 $newProd->comment = $prod['comment'] ?? '';
                 $newProd->product_id = $prod['product_id'];
-                $newProd->order_id = $ord_id;//$prod['order_id'];
+                $newProd->order_id = $ord_id;
                 $newProd->save();
-            
-                //$ord_id = $prod['order_id'];
             }
-            
         }
 
         $productOrderInfo = $this->getAllProductsOrderTicket($ord_id);
@@ -50,20 +67,108 @@ class ProductOrderController extends Controller
         ]);
     }
 
+
+
+    /**
+     * Create
+     * Función que un único productOrder.
+     * Posteriormente devuelve toda la info de ese ticket, a traves del método 'getAllProductsOrderTicket'.
+     * Devuelve success false si el ticket ya se le realizó la cuenta (tiene fecha).
+     */
+    public function crear(Request $req){
+        $ticket_id = ProductOrder::select('tickets.id') //Conseguimos el id del ticket al que pertenece
+        ->join('orders', 'orders.id', '=', 'product_orders.order_id')
+        ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
+        ->where('orders.id', '=', $req->order_id)->take(1)->get();
+
+        foreach($ticket_id as $ticket){
+            $ticket->id;
+        }
+
+        $ticketUpda = Ticket::findOrFail($ticket_id); 
+
+        if ($ticketUpda[0]->date != null) {
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+        } else {
+
+            $prod = new ProductOrder();
+            $prod->units = $req->units;
+            $prod->comment = $req->comment ?? '';
+            $prod->product_id = $req->product_id;
+            $prod->order_id = $req->order_id;
+            $prod->save();
+            
+            $productOrderInfo = $this->getAllProductsOrderTicket($req->order_id);
+
+        return response()->json([
+            'success' => true,
+            'ticketOrderInfo' => $productOrderInfo
+        ]);
+
+        }
+    }
+
+
+    /**
+     * getAll
+     * Devuelve todos los products orders (no usado)
+     */
     public function getAll(){
         $productsOrders = ProductOrder::all();
         return response()->json($productsOrders);
     }
 
+
+    /**
+     * update
+     * Metodo que actualiza el valor de un pedido.
+     * Primero comprueba que el ticket al que pertenece el pedido no este cerrado.
+     * Se devuelve un json con el todos los pedidos de ese ticket ya actualizado.
+     */
     public function update($id, Request $req){
-        $prod = ProductOrder::findOrFail($id);
-        $prod->units = $req->units;
-        $prod->comment = $req->comment;
-        $prod->product_id = $req->product_id;
-        $prod->update();
-        return response()->json($prod);
+        $ticket_id = ProductOrder::select('tickets.id') //Conseguimos el id del ticket al que pertenece
+        ->join('orders', 'orders.id', '=', 'product_orders.order_id')
+        ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
+        ->where('orders.id', '=', $req->order_id)->take(1)->get();
+
+        foreach($ticket_id as $ticket){
+            $ticket->id;
+        }
+
+        
+        $ticketUpda = Ticket::findOrFail($ticket_id); 
+        //dd($ticketUpda);
+        if ($ticketUpda[0]->date != null) { //Si la fecha no es nula, significa que se cerró.
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+
+        }  else {
+            $prod = ProductOrder::findOrFail($id);
+            $prod->units = $req->units;
+            $prod->comment = $req->comment ?? "";
+            $prod->product_id = $req->product_id;
+            $prod->update();
+
+            $info = $this->getAllProductsOrderTicket($prod->order_id);
+            return response()->json([
+                'success' => true,
+                'ticketOrderInfo' => $info
+            ]);
+        }
     }
 
+
+    /**
+     * ticketProductOrderInfo
+     * Metodo que devuelve toda la informacion necesaria para mostrar el estado del pedido
+     * por rondas de un ticket (id).
+     * Si no hay nada que mostrar (no se ha hecho ningun pedido devuelve success dlase token true)
+     */
     public function ticketProductOrdersInfo($id){
         $productOrderInfo = ProductOrder::select('product_orders.id', 'product_orders.units', 'product_orders.comment', 'products.name', 'product_orders.product_id', 'product_orders.order_id')
         ->join('orders', 'orders.id', '=', 'product_orders.order_id')
@@ -82,18 +187,23 @@ class ProductOrderController extends Controller
                 'ticketOrderInfo' => $productOrderInfo
             ]);
         }
-
-        
     }
 
-    //Método que devuelve un json con todos los productos (y unidades) por cada order de ese ticket.
+    
+    /**
+     * getAllProductOrderTicket
+     * Método que devuelve un informacion con todos los productos (y unidades) por cada order de ese ticket.
+     * El parametro de entrada es un order_id.
+     * Los endpoints que usan este método son: 'update', y 'create'
+     * 
+     */
     public function getAllProductsOrderTicket($id){
 
         //Sacar el id ticket
         $ticket_id = ProductOrder::select('tickets.id')
         ->join('orders', 'orders.id', '=', 'product_orders.order_id')
         ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
-        ->where('orders.id', '=', $id)->get();
+        ->where('orders.id', '=', $id)->take(1)->get();
 
         foreach($ticket_id as $ticket){
             $ticket->id;
@@ -107,6 +217,44 @@ class ProductOrderController extends Controller
         ->where('tickets.id', '=', $ticket->id)->get();
 
         return $productOrderInfo;
-
     }
+
+
+
+    /**
+     * delete
+     * Método que elimina un productOrder.
+     * El parametro de entrada es un order_id.
+     * Los endpoints que usan este método son: 'update', y 'create'
+     * 
+     */
+    public function deleteProductOrder($id, Request $req){
+        $ticket_id = ProductOrder::select('tickets.id') //Conseguimos el id del ticket al que pertenece
+        ->join('orders', 'orders.id', '=', 'product_orders.order_id')
+        ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
+        ->where('orders.id', '=', $req->order_id)->take(1)->get();
+
+        foreach($ticket_id as $ticket){
+            $ticket->id;
+        }
+
+        $ticketUpda = Ticket::findOrFail($ticket_id); 
+        //dd($ticketUpda);
+        if ($ticketUpda[0]->date != null) { //Si la fecha no es nula, significa que se cerró.
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+
+        } else {
+            $prod = ProductOrder::findOrFail($id);
+            ProductOrder::findOrFail($id)->delete();
+            return response()->json([
+                'success' => true,
+                'productOrder' => $prod
+            ]);
+        }
+    }
+
+
 }

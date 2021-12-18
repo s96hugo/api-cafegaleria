@@ -8,13 +8,19 @@ use Illuminate\Http\Request;
 use App\Ticket;
 use App\Table;
 use Illuminate\Support\Facades\DB;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 class TicketController extends Controller
 {
-    //Método que crea un nuevo ticket, se inicializa con la mesa que se le manda por
-    //parametro, y se crea un numero en funcion de la fecha. Posteriormente se le añade el
-    // id al numero
+  
+    /**
+     * Create
+     * Método que crea un nuevo ticket, se inicializa con la mesa que se le manda por
+     * parametro, y se crea un numero en funcion de la fecha. Posteriormente se le añade el
+     * id al numero
+     * 
+     */
     public function create(Request $req){
 
         $check = $this->checkCurrentTicketAtTable($req->table_id);
@@ -42,27 +48,75 @@ class TicketController extends Controller
         }
     }
 
-    public function delete($id){
-        Ticket::findOrFail($id)->delete();
+    /**
+     * Borra
+     * Este método borra un ticket por id. Primero comprueba que seas admin (usuario con id = 1)
+     * NOTA: En la app aún no hay ninguna llamada a este endpoint.
+     * 
+     */
+    public function delete($id, Request $req){
+        $userid = JWTAuth::toUser($req->token);
+        if ($userid->id == 1) {
+            Ticket::findOrFail($id)->delete();
+            return response()->json([
+                'success' => true,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+        }
+        
     }
 
-    //Añade la fecha a la que se realiza la cuenta
-    //TO Do: Al calcular el total, debe comrpobar si es 0, en ese caso se borra ese id de ticket y el success es false, pero token trve
+    
+    /**
+     * Make Bill
+     * Esta función añade la fecha a la que se realiza la cuenta,  llama al método que 
+     * calcula el total de la cuenta, y establece el método de pago llamando al método setPago.
+     * Se comprueban dos cosas: 
+     * - Si el total a calcular es 0, en ese caso se borra el ticket. 
+     * - Si ya hay una fecha en el ticket current (pòr id) significa que ya se le realizó esta operación previamente. 
+     *  en ambos casos el success es false, pero token true.
+     */
     public function cuenta($id, Request $req){
-        $ticketUpda = Ticket::findOrFail($id);
-        $ticketUpda->date = date('Y/m/d H:i:s');
-        $ticketUpda->total = $this->calcularTotal($id);
-        $ticketUpda->payment = $this->setPago($req->pay);
-        $ticketUpda->update();
-        $productsUnits = $this->calcularUnidadesProducto($id);
+        $totalCuenta = $this->calcularTotal($id);   //El candidato a total de la cuenta calculado.
+        $ticketUpda = Ticket::findOrFail($id);      //La fecha del ticket ya existente.
+                
+        if($totalCuenta == 0){
+            Ticket::findOrFail($id)->delete();
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'ticket' => $ticketUpda,
-            'unidades' => $productsUnits
-        ]);
+        } else if ($ticketUpda->date != null) {
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+
+        } else {
+            $ticketUpda->date = date('Y/m/d H:i:s');
+            $ticketUpda->total = $totalCuenta;
+            $ticketUpda->payment = $this->setPago($req->pay);
+            $ticketUpda->update();
+            $productsUnits = $this->calcularUnidadesProducto($id);
+
+            return response()->json([
+                'success' => true,
+                'ticket' => $ticketUpda,
+                'unidades' => $productsUnits
+            ]);
+        } 
     }
 
+
+    /**
+     * setPago
+     * en función devuelve un string segun el valor que se le establezca
+     */
     private function setPago(string $pay){
         if($pay == 0){ //efectivo
             return "en efectivo";
@@ -73,6 +127,11 @@ class TicketController extends Controller
         }
     }
 
+
+    /**
+     * get
+     * devuelve un ticket por id
+     */
     public function get(Request $req){
         $ticket = Ticket::findOrFail($req->id);
         return response()->json([
@@ -81,6 +140,11 @@ class TicketController extends Controller
         ]);
     }
 
+
+    /**
+     * getCurrentTickets
+     * Método que devuelve todos los tickets abiertos.
+     */
     public function getCurrentTickets(){
         $tickets = Ticket::where('date', '=', null)->get();
         return response()->json([
@@ -89,8 +153,14 @@ class TicketController extends Controller
         ]);
     }
 
+
+    /**
+     * getClosedTicket
+     * Metodo que devuelve todos los tickets cerrados (con fecha) ,y 
+     * a parte, también devuelve todas las mesas (para facilitar la implementación en la app)
+     */
     public function getClosedTickets(){
-        $tickets = Ticket::where('date', '!=', null)->orderBy('id', 'DESC')->take(100)->get();
+        $tickets = Ticket::where('date', '!=', null)->orderBy('id', 'DESC')->take(500)->get();
         return response()->json([
             'success' => true,
             'tickets' => $tickets,
@@ -98,7 +168,14 @@ class TicketController extends Controller
         ]);
     }
 
-    //Función para cambiar de mesa un ticket. SI NO hay registro success false, token true.
+
+    /**
+     * changeTable
+     * Función que cambia un ticket activo de mesa.
+     * Primero comprueba que en la mesa de origen haya un ticket activo, y segundo
+     * comprueba que la mesa de destino esté vacía. SI NO hay registro success false, token true.
+     * Un ticket se considera activo cuando no tiene fecha
+     */
     public function changeTable($id, Request $req){
         //Filtro1 -> Existe ticket activo en la mesa de origen
         $ticketf1 = Ticket::select('id')->where('date', '=', null)->where('table_id', '=', $id)->get();
@@ -113,7 +190,6 @@ class TicketController extends Controller
                 'token' => true
             ]);
         }
-
         //Filtro2 -> Mesa de destino vacía
         $ticketf2 = Ticket::select('id')->where('date', '=', null)->where('table_id', '=', $req->table_id)->get();
         $ticket_id2 = 0;
@@ -128,8 +204,6 @@ class TicketController extends Controller
             ]);
         }
 
-
-
         $tick = Ticket::findOrFail($ticket_id);
         $tick->table_id = $req->table_id;
         $tick->update();
@@ -142,7 +216,11 @@ class TicketController extends Controller
         ]);
     }
 
-    //Función que calcula el total por "producto * unidades" a la hora de hacer la cuenta.
+    /**
+     * Calcular total
+     * Función que se llama para calcular el total del ticket (llamado desde makeBill)
+     * en el que se suma el valor de los productos multiplicado por las unidades pedidas
+     */
     public function calcularTotal(int $id){
         $prices = Ticket::select('products.price', 'product_orders.units')
         ->join('orders', 'orders.ticket_id', '=', 'tickets.id')
@@ -160,7 +238,12 @@ class TicketController extends Controller
         return $formattedNum;
     }
 
-    //Método que devuelve todos los productos, precio y unidades que se han pedidio en un ticket
+    
+    /**
+     * CalcularUnidadesProducto
+     * Método que devuelve todos los productos, precio y unidades que se han pedidio en un ticket.
+     * Se llama desde showBill, para mostrar info de un ticket cerrado.
+     */
     public function calcularUnidadesProducto($id){
         $productsUnits = Ticket::select('products.name',
                                 'products.price', 
@@ -174,6 +257,7 @@ class TicketController extends Controller
 
         return $productsUnits;
     }
+
 
     //Comprueba si existe un ticket activo en esa mesa, se utiliza a la hora de crear un ticket, para que no haya dos tickets en la misma mesa.
     public function checkCurrentTicketAtTable($id){
@@ -193,7 +277,12 @@ class TicketController extends Controller
         return $total;
     }
 
-    //LLama a "CalcularUnidadesProducto" al igual que el método que realiza la cuenta. Este se usa para acceder a los productos de un ticket ya cerrado.
+    
+    /**
+     * showBill
+     * LLama a "CalcularUnidadesProducto" al igual que el método que realiza la cuenta.
+     * Este se usa para acceder a los productos de un ticket ya cerrado.
+     */
     public function showBill($id){
         $productsUnits = $this->calcularUnidadesProducto($id);
         return response()->json([

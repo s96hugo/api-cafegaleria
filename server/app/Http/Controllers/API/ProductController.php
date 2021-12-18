@@ -98,7 +98,7 @@ class ProductController extends Controller
     /**
      * ProductCategory
      * Devuelve todos los productos visibles junto con el
-     * nombre de la categoría al que pertenecen, para facilitar la implementación de la app.
+     * nombre de la categoría al que pertenecen, y todas las categorias; para facilitar la implementación de la app.
      */
     public function productCategory(){
         $mp = Product::select(

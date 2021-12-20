@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 use App\Product;
 use App\Category;
+use App\ProductOrder;
+use App\Ticket;
 
 use App\Http\Controllers\Controller;
 use Dotenv\Result\Success;
@@ -126,10 +128,12 @@ class ProductController extends Controller
     /**
      * productDataSet
      * Devuelve toda la información necesaria para construir
-     * la vista Order: Productos más vendidos, todos los productos, y todas las categorias.
+     * la vista Order: Productos más vendidos, todos los productos, todas las 
+     * categorias, todos los productos pedidos en cada una de las rondas (ProductOrder).
      * Creado por eficiencia, para hacerlo todo de 1 llamada a la API
      */
-    public function productsDataSet(){
+    public function productsDataSet($id){
+        $ticket_id =$id;
         //Most popular
         $mp = Product::select(
             'products.id', 
@@ -162,11 +166,19 @@ class ProductController extends Controller
         //Categories
         $categories = Category::all();
 
+        //Sacar toda la info de los pedidos de ese ticket
+        $productOrderInfo = ProductOrder::select('product_orders.id', 'product_orders.units', 'product_orders.comment', 'products.name', 'product_orders.product_id', 'product_orders.order_id')
+        ->join('orders', 'orders.id', '=', 'product_orders.order_id')
+        ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
+        ->join('products', 'products.id', '=', 'product_orders.product_id')
+        ->where('tickets.id', '=', $ticket_id)->get();
+
         return response()->json([
             'success' => true,
             'mostPopular' => $mp,
             'products' => $pc,
-            'categories' => $categories
+            'categories' => $categories,
+            'ticketOrderInfo' => $productOrderInfo
         ]);
 
     }

@@ -214,7 +214,9 @@ class ProductOrderController extends Controller
         ->join('orders', 'orders.id', '=', 'product_orders.order_id')
         ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
         ->join('products', 'products.id', '=', 'product_orders.product_id')
-        ->where('tickets.id', '=', $ticket->id)->get();
+        ->where('tickets.id', '=', $ticket->id)
+        ->orderBy('orders.id', 'ASC')
+        ->get();
 
         return $productOrderInfo;
     }
@@ -224,9 +226,10 @@ class ProductOrderController extends Controller
     /**
      * delete
      * Método que elimina un productOrder.
-     * El parametro de entrada es un order_id.
-     * Los endpoints que usan este método son: 'update', y 'create'
-     * 
+     * El parametro de entrada es un order_id. y el id por url de PO.
+     * Primero busca el ticket, si la fecha no es nula devuelva false, porque el ticket se cerro.
+     * Si es el ultimo PO del order, en ese caso borra el order tb.
+     *  
      */
     public function deleteProductOrder($id, Request $req){
         $ticket_id = ProductOrder::select('tickets.id') //Conseguimos el id del ticket al que pertenece
@@ -247,12 +250,30 @@ class ProductOrderController extends Controller
             ]);
 
         } else {
-            $prod = ProductOrder::findOrFail($id);
-            ProductOrder::findOrFail($id)->delete();
-            return response()->json([
-                'success' => true,
-                'productOrder' => $prod
-            ]);
+            //sacamos la información del Order
+            $order = Order::select('orders.id')->join('product_orders', 'product_orders.order_id', '=', 'orders.id')
+                    ->where('orders.id', '=', $req->order_id);
+            
+            //CONDICION: si Order quedará vacío despues de borrar el productOrder -> borrar order
+            if($order->count()==1){
+                $prod = ProductOrder::findOrFail($id);
+                ProductOrder::findOrFail($id)->delete();
+                Order::findOrFail($req->order_id)->delete();
+                return response()->json([
+                    'success' => true,
+                    'productOrder' => $prod,
+                    'era el ultimo => true'
+                ]);
+
+            } else {
+                $prod = ProductOrder::findOrFail($id);
+                ProductOrder::findOrFail($id)->delete();
+                return response()->json([
+                    'success' => true,
+                    'productOrder' => $prod,
+                    'no era el ultimo' => true
+                ]);
+            }
         }
     }
 

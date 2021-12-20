@@ -7,6 +7,7 @@ use App\Http\Resources\Product as ResourcesProduct;
 use Illuminate\Http\Request;
 use App\Ticket;
 use App\Table;
+use Brick\Math\BigInteger;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -33,11 +34,11 @@ class TicketController extends Controller
 
         } else {
             $newTicket = new Ticket;
-            $newTicket->number = (integer)str_replace("-","",date("Y-m-d"));
+            $newTicket->number = str_replace("-","",date("Y-m-d"));
             $newTicket->table_id = $req->table_id;
             $newTicket->save();
 
-            $numUnique = (integer)"$newTicket->number". $newTicket->id;;
+            $numUnique = "$newTicket->number". $newTicket->id;;
             $newTicket->number = $numUnique;
             $newTicket->update();
         
@@ -245,7 +246,8 @@ class TicketController extends Controller
      * Se llama desde showBill, para mostrar info de un ticket cerrado.
      */
     public function calcularUnidadesProducto($id){
-        $productsUnits = Ticket::select('products.name',
+        $productsUnits = Ticket::select('products.id',
+                                'products.name',
                                 'products.price', 
                                 DB::raw("(sum(product_orders.units)) as unidades"))
 

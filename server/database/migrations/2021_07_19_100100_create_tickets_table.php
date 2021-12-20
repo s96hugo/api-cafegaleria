@@ -15,7 +15,7 @@ class CreateTicketsTable extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->integer('number')->nullable();
+            $table->string('number')->nullable();
             $table->dateTime('date', $precision = 0)->nullable();
             $table->decimal('total', $precision = 10, $scale = 2)->nullable();
             $table->string('payment')->nullable();

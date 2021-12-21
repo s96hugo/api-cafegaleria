@@ -36,12 +36,12 @@ class ProductController extends Controller
         )    
         ->join('categories', 'categories.id', '=', 'products.category_id')
         ->where('products.visible', "=", true)
-        ->where('products.id', '=', $newProd->id)
+        ->orderBy('products.category_id', 'ASC')
         ->get();
 
         return response()->json([
             'success' => true,
-            'product' => $mp
+            'products' => $mp
         ]);
     }
 
@@ -195,10 +195,22 @@ class ProductController extends Controller
         $product->photo = $req->photo;
         $product->category_id = $req->category_id;
         $product->update();
+
+        $mp = Product::select(
+            'products.id', 
+            'products.name',
+            'products.price',
+            'products.category_id',
+            'categories.category'
+        )    
+        ->join('categories', 'categories.id', '=', 'products.category_id')
+        ->where('products.visible', "=", true)
+        ->orderBy('products.category_id', 'ASC')
+        ->get();
         
         return response()->json([
             'success' => true,
-            'product' => $product
+            'products' => $mp
         ]);
     }
 

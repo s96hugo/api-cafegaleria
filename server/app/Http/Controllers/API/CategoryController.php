@@ -19,9 +19,11 @@ class CategoryController extends Controller
         $newCategory = new Category();
         $newCategory->category = $req->category;
         $newCategory->save();
+
+        $categories = Category::all();
         return response()->json([
             'success' => true,
-            'categoria' => $newCategory
+            'categories' => $categories
         ]);
     }
 

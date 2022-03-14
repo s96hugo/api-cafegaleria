@@ -9,17 +9,18 @@
 {    "id": 8,    "categoria": "Vinos"},
 {    "id": 9,    "categoria": "Refrescos"},
 {    "id": 10,    "categoria": "Tapas"},
-{    "id": 11,    "categoria": "Raciones"},
-{    "id": 12,    "categoria": "Arroces"},
-{    "id": 13,    "categoria": "Bocadillos"},
-{    "id": 14,    "categoria": "Postres"},
-{    "id": 15,    "categoria": "Ensaladas"},
+{    "id": 11,    "categoria": "Tapas extra"},
+{    "id": 12,    "categoria": "Raciones"},
+{    "id": 13,    "categoria": "Arroces"},
+{    "id": 14,    "categoria": "Bocadillos"},
+{    "id": 15,    "categoria": "Postres"},
+{    "id": 16,    "categoria": "Ensaladas"},
 
-{    "id": 16,    "categoria": "Ginebras"},
-{    "id": 17,    "categoria": "Ron"},
-{    "id": 18,    "categoria": "Whisky"},
-{    "id": 19,    "categoria": "Cocktails"},
-{    "id": 20,    "categoria": "Licores"},
-{    "id": 21,    "categoria": "Agua"}]
+{    "id": 17,    "categoria": "Ginebras"},
+{    "id": 18,    "categoria": "Ron"},
+{    "id": 19,    "categoria": "Whisky"},
+{    "id": 20,    "categoria": "Cocktails"},
+{    "id": 21,    "categoria": "Licores"},
+{    "id": 22,    "categoria": "Agua"}]
 
         

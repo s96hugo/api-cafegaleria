@@ -16,7 +16,7 @@ class ProductoTableSeeder extends Seeder
         $json = File::get("database/data-sample/producto.json");
         $data = json_decode($json);
         foreach ($data as $obj) {        
-            Product::create(array('id' => $obj->id, 'name' => $obj->numbre, 'price' => $obj->precio, 'category_id' => $obj->Id_categoria ));}  
+            Product::create(array('id' => $obj->id, 'name' => $obj->name, 'price' => $obj->price, 'visible' => $obj->visible, 'category_id' => $obj->category_id ));}  
 
     }
 }

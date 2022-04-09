@@ -64,6 +64,8 @@ Route::get('ticketsClosed', 'API\TicketController@getClosedTickets');
 Route::get('tickets/{id}/get/', 'API\TicketController@get');
 Route::post('tickets/{id}/changeTable/', 'API\TicketController@changeTable');
 Route::get('tickets/{id}/showBill/', 'API\TicketController@showBill');
+Route::post('facturacion/{id}', 'API\TicketController@calcFacturacion');
+
 
 //Order function
 Route::post('orders/create', 'API\OrderController@create');

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Ticket;
 use App\Table;
 use Brick\Math\BigInteger;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -161,7 +162,7 @@ class TicketController extends Controller
      * a parte, también devuelve todas las mesas (para facilitar la implementación en la app)
      */
     public function getClosedTickets(){
-        $tickets = Ticket::where('date', '!=', null)->orderBy('id', 'DESC')->take(500)->get();
+        $tickets = Ticket::where('date', '!=', null)->orderBy('date', 'DESC')->take(900)->get();
         return response()->json([
             'success' => true,
             'tickets' => $tickets,
@@ -293,5 +294,96 @@ class TicketController extends Controller
         ]);
     }
 
+
+    /**
+     * CalcularFacturación
+     * Esta función recibirá 1 o dos fechas, segújn check, y calcula el total de los tickets comprendidos entre las fechas y
+     * los devuelve, desglosado en efectivo y tarjeta. El formato de fechas de entrada es YYYY-mm-dd, y es el servidor el que
+     * establce que la fechaFrom va desde las 6:00:00, y la fecha to va hasta el día siguiente a las 5:59:00
+     * check = 1 -> 1 fecha
+     * check = 0 -> 2 fechas (rango)
+     */
+    public function calcFacturacion($id, Request $req){
+        $total = 0;
+        $totalEfectivo = 0;
+        $totalTarjeta = 0;
+
+        if($id == 1){     //caso 1 fecha
+
+            $ticketf1 = Ticket::select('id', 'total', 'payment')->whereBetween('date', [$this->fechaFrom($req->fechaFrom), $this->fechaTo($req->fechaFrom)])->get();
+            foreach ($ticketf1 as $tick) {
+                $total += $tick->total;
+                if($tick->payment == "en efectivo"){
+                    $totalEfectivo += $tick->total;
+
+                } else if ($tick->payment == "con tarjeta"){
+                    $totalTarjeta += $tick->total;
+                }
+            }
+            return response()->json([
+                'success' => true,
+                'total' => $total,
+                'efectivo' => $totalEfectivo,
+                'tarjeta' => $totalTarjeta
+            ]);
+
+            
+        } else if($id==0){             //Caso 0 -> rango 2 fechas
+
+            $ticketf1 = Ticket::select('id', 'total', 'payment')->whereBetween('date', [$this->fechaFrom($req->fechaFrom), $this->fechaTo($req->fechaTo)])->get();
+            foreach ($ticketf1 as $tick) {
+                $total += $tick->total;
+                if($tick->payment == "en efectivo"){
+                    $totalEfectivo += $tick->total;
+
+                } else if ($tick->payment == "con tarjeta"){
+                    $totalTarjeta += $tick->total;
+                }
+            }
+            return response()->json([
+                'success' => true,
+                'total' => $total,
+                'efectivo' => $totalEfectivo,
+                'tarjeta' => $totalTarjeta
+            ]);
+
+
+            
+        } else {    //otro caso
+
+            return response()->json([
+                'success' => false,
+                'token' => true
+            ]);
+        }
+    }
+
+
+    /**
+     * FechaFrom
+     * Recibe un string con la fecha formato YYYY-mm-dd, y establece el inicio de la jornada instanciando un
+     * dateTime desde las 6 de la mañana
+     */
+    private function fechaFrom(string $from){
+        $date = new DateTime();
+        $dateFromStr = "$from". " 06:00:00";
+        $dateFrom = $date->createFromFormat('Y-m-d H:i:s', $dateFromStr);
+        return $dateFrom;
+    }
+
+
+    /**
+     * FechaTo
+     * Recibe un string con la fecha de finalización formato YYYY-mm-dd, y establece el fin de la jornada
+     * a las 5:59 de la madrugada del dia siguiente.
+     */
+    private function fechaTo(string $to){
+        $date = new DateTime();
+        $dateToStr = "$to". " 06:00:00";
+        $dateTo = $date->createFromFormat('Y-m-d H:i:s', $dateToStr);
+        $dateTo->modify("+ 1 day");
+        $dateTo->modify("- 1 sec");
+        return $dateTo;
+    }
 
 }

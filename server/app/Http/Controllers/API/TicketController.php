@@ -24,15 +24,12 @@ class TicketController extends Controller
      * 
      */
     public function create(Request $req){
-
         $check = $this->checkCurrentTicketAtTable($req->table_id);
-
         if($check != 0){
             return response()->json([
                 'success' => false,
                 'token' => true
             ]);
-
         } else {
             $newTicket = new Ticket;
             $newTicket->number = str_replace("-","",date("Y-m-d"));
@@ -69,9 +66,7 @@ class TicketController extends Controller
                 'token' => true
             ]);
         }
-        
     }
-
     
     /**
      * Make Bill
@@ -114,7 +109,6 @@ class TicketController extends Controller
         } 
     }
 
-
     /**
      * setPago
      * en función devuelve un string segun el valor que se le establezca
@@ -129,7 +123,6 @@ class TicketController extends Controller
         }
     }
 
-
     /**
      * get
      * devuelve un ticket por id
@@ -142,7 +135,6 @@ class TicketController extends Controller
         ]);
     }
 
-
     /**
      * getCurrentTickets
      * Método que devuelve todos los tickets abiertos.
@@ -154,7 +146,6 @@ class TicketController extends Controller
             'tickets' => $tickets
         ]);
     }
-
 
     /**
      * getClosedTicket
@@ -169,7 +160,6 @@ class TicketController extends Controller
             'tables' => Table::all()
         ]);
     }
-
 
     /**
      * changeTable
@@ -236,11 +226,9 @@ class TicketController extends Controller
         }
 
         $formattedNum = str_replace(',', '', $total);
-
         return $formattedNum;
     }
 
-    
     /**
      * CalcularUnidadesProducto
      * Método que devuelve todos los productos, precio y unidades que se han pedidio en un ticket.
@@ -261,7 +249,6 @@ class TicketController extends Controller
         return $productsUnits;
     }
 
-
     //Comprueba si existe un ticket activo en esa mesa, se utiliza a la hora de crear un ticket, para que no haya dos tickets en la misma mesa.
     public function checkCurrentTicketAtTable($id){
 
@@ -280,7 +267,6 @@ class TicketController extends Controller
         return $total;
     }
 
-    
     /**
      * showBill
      * LLama a "CalcularUnidadesProducto" al igual que el método que realiza la cuenta.
@@ -293,7 +279,6 @@ class TicketController extends Controller
             'unidades' => $productsUnits
         ]);
     }
-
 
     /**
      * CalcularFacturación
@@ -309,7 +294,6 @@ class TicketController extends Controller
         $totalTarjeta = 0;
 
         if($id == 1){     //caso 1 fecha
-
             $ticketf1 = Ticket::select('id', 'total', 'payment')->whereBetween('date', [$this->fechaFrom($req->fechaFrom), $this->fechaTo($req->fechaFrom)])->get();
             foreach ($ticketf1 as $tick) {
                 $total += $tick->total;
@@ -326,7 +310,6 @@ class TicketController extends Controller
                 'efectivo' => $totalEfectivo,
                 'tarjeta' => $totalTarjeta
             ]);
-
             
         } else if($id==0){             //Caso 0 -> rango 2 fechas
 
@@ -347,17 +330,13 @@ class TicketController extends Controller
                 'tarjeta' => $totalTarjeta
             ]);
 
-
-            
         } else {    //otro caso
-
             return response()->json([
                 'success' => false,
                 'token' => true
             ]);
         }
     }
-
 
     /**
      * FechaFrom
@@ -370,7 +349,6 @@ class TicketController extends Controller
         $dateFrom = $date->createFromFormat('Y-m-d H:i:s', $dateFromStr);
         return $dateFrom;
     }
-
 
     /**
      * FechaTo

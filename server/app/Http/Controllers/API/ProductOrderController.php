@@ -170,9 +170,10 @@ class ProductOrderController extends Controller
      * Si no hay nada que mostrar (no se ha hecho ningun pedido devuelve success dlase token true)
      */
     public function ticketProductOrdersInfo($id){
-        $productOrderInfo = ProductOrder::select('product_orders.id', 'product_orders.units', 'product_orders.comment', 'products.name', 'product_orders.product_id', 'product_orders.order_id')
+        $productOrderInfo = ProductOrder::select('product_orders.id', 'product_orders.units', 'product_orders.comment', 'products.name', 'product_orders.product_id', 'product_orders.order_id', 'tables.description')
         ->join('orders', 'orders.id', '=', 'product_orders.order_id')
         ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
+        ->join('tables', 'tables.id', '=', 'tickets.table_id')
         ->join('products', 'products.id', '=', 'product_orders.product_id')
         ->where('tickets.id', '=', $id)->get();
 

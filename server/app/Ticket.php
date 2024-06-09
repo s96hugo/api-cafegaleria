@@ -11,7 +11,8 @@ class Ticket extends Model
         'date',
         'total',
         'payment',
-        'table_id'
+        'table_id',
+        'nick'
     ];
 
     public $timestamps = false;

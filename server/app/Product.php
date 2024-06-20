@@ -12,7 +12,8 @@ class Product extends Model
         'price',
         'photo',
         'visible',
-        'category_id'
+        'category_id',
+        'screenType'
      ];
 
      public $timestamps = false;

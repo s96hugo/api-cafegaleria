@@ -108,7 +108,8 @@ class ProductController extends Controller
             'products.name',
             'products.price',
             'products.category_id',
-            'categories.category'
+            'categories.category',
+            'products.screenType'
         )    
         ->join('categories', 'categories.id', '=', 'products.category_id')
         ->where('products.visible', "=", true)
@@ -140,6 +141,7 @@ class ProductController extends Controller
             'products.name',
             'products.price',
             'categories.category',
+            'products.screenType',
             DB::raw("(sum(product_orders.units)) as total")
         )    
         ->join('product_orders', 'product_orders.product_id', '=', 'products.id')
@@ -156,7 +158,8 @@ class ProductController extends Controller
             'products.name',
             'products.price',
             'products.category_id',
-            'categories.category'
+            'categories.category',
+            'products.screenType'
         )    
         ->join('categories', 'categories.id', '=', 'products.category_id')
         ->where('products.visible', "=", true)

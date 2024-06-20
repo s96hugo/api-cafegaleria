@@ -10,7 +10,8 @@ class ProductOrder extends Model
         'units',
         'comments',
         'product_id',
-        'order_id'
+        'order_id', 
+        'status'
      ];
 
      public $timestamps = false;

@@ -39,7 +39,6 @@ class ProductOrderController extends Controller
                 $newOrder->ticket_id = $prod['ticket_id'];
                 $newOrder->user_id = $prod['user_id'];
                 $newOrder->save();
-
                 $ord_id = $newOrder->id;
 
                 $newProd = new ProductOrder();
@@ -47,6 +46,7 @@ class ProductOrderController extends Controller
                 $newProd->comment = $prod['comment'] ?? '';
                 $newProd->product_id = $prod['product_id'];
                 $newProd->order_id = $ord_id;
+                $newProd->status = 1; //Pendiente
                 $newProd->save();
 
             } else {//Demas iteraciones, se instacian los productsOrders
@@ -55,6 +55,7 @@ class ProductOrderController extends Controller
                 $newProd->comment = $prod['comment'] ?? '';
                 $newProd->product_id = $prod['product_id'];
                 $newProd->order_id = $ord_id;
+                $newProd->status = 1;//pendiente-
                 $newProd->save();
             }
         }

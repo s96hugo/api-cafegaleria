@@ -279,5 +279,23 @@ class ProductOrderController extends Controller
         }
     }
 
+    public function changeStatus($id, Request $req){
+        $prod = ProductOrder::findOrFail($req->order_id);
+        $prod->status = $id;
+        $prod->update();
+
+        $productOrderInfo = ProductOrder::select('product_orders.id', 'product_orders.units', 'product_orders.comment', 'products.name', 'product_orders.product_id', 'product_orders.order_id', 'products.screenType', 'product_orders.status')
+        ->join('orders', 'orders.id', '=', 'product_orders.order_id')
+        ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
+        ->join('products', 'products.id', '=', 'product_orders.product_id')
+        ->where('tickets.date', '=', null)->get();
+        return response()->json([
+            'success' => true,
+            'ticketOrderInfo' => $productOrderInfo
+        ]);
+
+            
+    }
+
 
 }

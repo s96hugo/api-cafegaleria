@@ -170,7 +170,7 @@ class ProductController extends Controller
         $categories = Category::all();
 
         //Sacar toda la info de los pedidos de ese ticket
-        $productOrderInfo = ProductOrder::select('product_orders.id', 'product_orders.units', 'product_orders.comment', 'products.name', 'product_orders.product_id', 'product_orders.order_id')
+        $productOrderInfo = ProductOrder::select('product_orders.id', 'product_orders.units', 'product_orders.comment', 'products.name', 'product_orders.product_id', 'product_orders.order_id', 'products.screenType', 'product_orders.status')
         ->join('orders', 'orders.id', '=', 'product_orders.order_id')
         ->join('tickets', 'orders.ticket_id', '=', 'tickets.id')
         ->join('products', 'products.id', '=', 'product_orders.product_id')

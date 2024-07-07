@@ -25,6 +25,7 @@ class ProductController extends Controller
         $newProd->photo = $req->photo;
         $newProd->visible = true;
         $newProd->category_id = $req->category_id;
+        $newProd->screenType = $req->screenType;
         $newProd->save();
 
         $mp = Product::select(
@@ -32,7 +33,8 @@ class ProductController extends Controller
             'products.name',
             'products.price',
             'products.category_id',
-            'categories.category'
+            'categories.category',
+            'products.screenType'
         )    
         ->join('categories', 'categories.id', '=', 'products.category_id')
         ->where('products.visible', "=", true)
@@ -197,6 +199,7 @@ class ProductController extends Controller
         $product->price = $req->price;
         $product->photo = $req->photo;
         $product->category_id = $req->category_id;
+        $product->screenType = $req->screenType;
         $product->update();
 
         $mp = Product::select(
@@ -204,7 +207,8 @@ class ProductController extends Controller
             'products.name',
             'products.price',
             'products.category_id',
-            'categories.category'
+            'categories.category',
+            'products.screenType'
         )    
         ->join('categories', 'categories.id', '=', 'products.category_id')
         ->where('products.visible', "=", true)

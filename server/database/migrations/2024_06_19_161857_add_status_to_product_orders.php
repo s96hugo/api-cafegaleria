@@ -14,7 +14,7 @@ class AddStatusToProductOrders extends Migration
     public function up()
     {
         Schema::table('product_orders', function (Blueprint $table) {
-            $table->integer('status')->nullable(); // Ajusta el tipo de datos y valor por defecto según tus necesidades
+            $table->integer('status')->nullable(); 
         });
     }
 
